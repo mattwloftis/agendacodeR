@@ -1,0 +1,6 @@
+export(trainNB)
+export(classifyNB)
+export(kFoldCross)
+export(mutInfo)
+export(topWords)
+export(catAccuracy)
