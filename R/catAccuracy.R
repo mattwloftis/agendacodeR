@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' Accuracy by categories
 #'
 #' Checks accuracy of classification by category. Provides details by category including: true positive rate, positive predicted value, true frequency in training data, and the top five classes observations from a given category are mistakenly classified into.
@@ -30,9 +29,6 @@
 #' @export
 
 catAccuracy <- function(true, predicted, latexfile=FALSE, filename="category_accuracy.tex"){
-=======
-catAccuracy <- function(true, predicted, latexfile=F, filename="category_accuracy.tex"){
->>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   tab <- as.matrix(table(true, predicted))
   by.row <- tab/rowSums(tab)
   by.col <- t(t(tab)/colSums(tab))

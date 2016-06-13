@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' Calculate Mutual Information
 #'
 #' Calculate mutual information between training classes and training features
@@ -25,8 +24,6 @@
 #' @import Matrix quanteda
 #' @export
 
-=======
->>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
 mutInfo <- function(coding, train_matrix){
   ## Modified mutual information feature selection algorithm
   ## from McCallum and Nigam (1998)
@@ -34,21 +31,12 @@ mutInfo <- function(coding, train_matrix){
   names(nc) <- names(table(coding)) #naming nc vector with category names
   theta_c <- nc/nrow(train_matrix) #simple prior probs of categories (c x 1)
   theta_j <- colSums(train_matrix)/nrow(train_matrix) #word probs
-  coding <- coding
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   ##Reordering these vectors to deal with the reference category problem
   ##If the reference category is the least common category, predictive accuracy is better
   nc <- nc[order(theta_c, decreasing=T)]
   theta_c <- theta_c[order(theta_c, decreasing=T)] #sorting nc and theta_c by theta_c
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   ##Calculating priors over terms/categories
   njc <- matrix(NA, nrow=length(unique(coding)), ncol=ncol(train_matrix)) #word frequencies by category (c x j)
   rownames(njc) <- names(nc); colnames(njc) <- colnames(train_matrix) #apply category names and term names to dimensions
