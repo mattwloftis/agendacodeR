@@ -19,6 +19,11 @@
 #' est <- trainNB(training_agendas$coding, train_matrix)
 #' words <- topWords(est)
 #'
+#' @note Latex table outputs depend on the Latex packages: longtable and xcolor. Include the lines:
+#' \code{\\usepackage\[table\]\{xcolor\}}
+#' \code{\\usepackage\{longtable\}}
+#' in the Latex header
+#'
 #' @rdname topWords
 #' @import Matrix quanteda
 #' @export
@@ -36,7 +41,7 @@ topWords <- function(est, latexfile=FALSE, filename="topwords.tex"){
   if (latexfile==F){
     return(top.words)
   } else {
-    output <- paste("% latex table generated in R by fastMCNB
+    output <- paste("% latex table generated in R by agendacodeR -- github.com/mattwloftis/agendacodeR
 %", Sys.Date(), "
 \\begin{center}
 \\begin{footnotesize}

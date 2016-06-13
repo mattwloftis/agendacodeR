@@ -19,6 +19,12 @@ A dataframe with one row for each class. Columns correspond to class name and th
 \description{
 Identifies training words (features) most associated with each class in the training data.
 }
+\note{
+Latex table outputs depend on the Latex packages: longtable and xcolor. Include the lines:
+\code{\\usepackage\[table\]\{xcolor\}}
+\code{\\usepackage\{longtable\}}
+in the Latex header
+}
 \examples{
 ## Load data and create document-feature matrices
 train_corpus <- quanteda::corpus(x=training_agendas$text)

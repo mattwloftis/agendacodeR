@@ -24,6 +24,11 @@
 #'   out <- classifyNB(est, train_matrix, training_agendas)
 #'   acc <- catAccuracy(true=out$coding, predicted=out$ratio_match)
 #'
+#' @note Latex table outputs depend on the Latex packages: longtable and xcolor. Include the lines:
+#' \code{\\usepackage\[table\]\{xcolor\}}
+#' \code{\\usepackage\{longtable\}}
+#' in the Latex header
+#'
 #' @rdname catAccuracy
 #' @import Matrix quanteda
 #' @export
@@ -71,7 +76,7 @@ catAccuracy <- function(true, predicted, latexfile=FALSE, filename="category_acc
   if(latexfile==F){
     return(results)
   } else {
-    output <- paste("% latex table generated in R by fastMCNB
+    output <- paste("% latex table generated in R by agendacodeR -- github.com/mattwloftis/agendacodeR
 %", Sys.Date(), "
 \\begin{center}
 \\begin{footnotesize}

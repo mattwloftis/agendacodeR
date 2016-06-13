@@ -22,6 +22,12 @@ A dataframe with one row for each class. Columns correspond to within-class meas
 \description{
 Checks accuracy of classification by category. Provides details by category including: true positive rate, positive predicted value, true frequency in training data, and the top five classes observations from a given category are mistakenly classified into.
 }
+\note{
+Latex table outputs depend on the Latex packages: longtable and xcolor. Include the lines:
+\code{\\usepackage\[table\]\{xcolor\}}
+\code{\\usepackage\{longtable\}}
+in the Latex header
+}
 \examples{
   ## Load data and create document-feature matrices
   train_corpus <- quanteda::corpus(x=training_agendas$text)
