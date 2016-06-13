@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' k-fold cross-validation
 #'
 #' Implements k-fold cross-validation of multiclass NB classifier. Splits training data into k roughly equal parts. For each 'fold,' the classifier trains on the training data not in the fold and checks its accuracy by classifying fold k.
@@ -60,6 +61,9 @@
 
 
 kFoldCross <- function(coding,train_matrix,train,k=10){
+=======
+kFoldCross <- function(coding,train_matrix,k=10){
+>>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   size <- ceiling(length(coding)/k) #getting approximate size of folds
   labs <- rep(letters[1:k],size) #generating letters for labeling folds
   labs <- labs[1:length(coding)] #reducing label vector to size of training set
@@ -75,6 +79,7 @@ kFoldCross <- function(coding,train_matrix,train,k=10){
     test_mat <- train_matrix[labs==letters[fold],] #pulling out test set for fold
     train_mat <- train_mat[,colSums(train_mat)>0] #dropping terms in train only appearing in test
     test_mat <- test_mat[,colSums(test_mat)>0] #dropping terms in test only appearing in train
+<<<<<<< HEAD
 
     ##TRAINING STEP
     est <- trainNB(coding[labs!=letters[fold]],train_mat) ##Train NB algorithm - hand-off to function in "run_algorithm.R" file
@@ -88,6 +93,20 @@ kFoldCross <- function(coding,train_matrix,train,k=10){
     correct_ratio[fold] <- table(coding[labs==letters[fold]]==output$ratio_match)["TRUE"]/nrow(output) #record total accuracy of ratio matches
     guesses[[fold]] <- cbind(coding[labs==letters[fold]], output[,c("max_match","ratio_match")])
     colnames(guesses[[fold]]) <- c("true_coding","max_match","ratio_match")
+=======
+    
+    ##TRAINING STEP
+    est <- train.NB(coding[labs!=letters[fold]],train_mat) ##Train NB algorithm - hand-off to function in "run_algorithm.R" file
+    ##CLASSIFICATION STEP
+    output <- classify.NB(est,test_mat,train[labs==letters[fold],]) ##Hand off to classification function in the "run_algorithm.R" file
+    ##CALCULATING ACCURACIES
+    output$correct <- as.numeric(output$coding==output$ratio_match) #check answers by ratio match
+    a <- split(output, output$ratio_match) #split the data by assigned categories
+    by.cats[[fold]] <- unlist( lapply(a, function(x) sum(x$correct)/nrow(x)) ) #record ratio match accuracy by category
+    correct_max[fold] <- table(output$coding==output$max_match)["TRUE"]/nrow(output) #record total accuracy of max matches
+    correct_ratio[fold] <- table(output$coding==output$ratio_match)["TRUE"]/nrow(output) #record total accuracy of ratio matches
+    guesses[[fold]] <- output[,c("coding","max_match","ratio_match")]
+>>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   }
   return(list(correct_max,correct_ratio,by.cats,guesses))
 }

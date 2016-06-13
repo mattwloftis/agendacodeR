@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' Find top words by category
 #'
 #' Identifies training words (features) most associated with each class in the training data.
@@ -24,6 +25,9 @@
 #' @export
 
 topWords <- function(est, latexfile=FALSE, filename="topwords.tex"){
+=======
+topWords <- function(est, latexfile=F, filename="topwords.tex"){
+>>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
   w_jc <- scale(est[[2]])
   top.words <- matrix(nrow=nrow(w_jc), ncol=5)
   for(i in 1:nrow(w_jc)){

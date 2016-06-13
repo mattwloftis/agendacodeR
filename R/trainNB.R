@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' Train Naive Bayes
 #' 
 #' Trains multiclass Naive Bayes classifier
@@ -39,6 +40,8 @@
 #' @export
 
 
+=======
+>>>>>>> 069e694d09b3ec714660b30a7155bbbe5ab1e7c4
 trainNB <- function(coding,train_matrix){ ##TRAINING CLASSIFIER
   if(length(coding)!=nrow(train_matrix)) stop('Length of codings does not equal number of documents in training document-feature matrix')
 
