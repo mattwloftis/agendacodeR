@@ -40,8 +40,15 @@
 
 
 trainNB <- function(coding,train_matrix){ ##TRAINING CLASSIFIER
+  ##Error catching and warnings
   if(length(coding)!=nrow(train_matrix)) stop('Length of codings does not equal number of documents in training document-feature matrix')
+  if(any(is.na(coding))){
+    warning('NB: Missing values present in coding. Removing observations with missing coding.')
+    coding <- coding[is.na(coding)==FALSE]
+    train_matrix <- train_matrix[is.na(coding)==FALSE,]
+  }
 
+  ##Preliminary items
   c <- length(unique(coding)) #total categories (1 x 1)
   nc <- as.vector(table(coding)) #number of training obs per category (c x 1)
   names(nc) <- names(table(coding)) #naming nc vector with category names
