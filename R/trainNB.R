@@ -76,6 +76,8 @@ trainNB <- function(coding,train_matrix){ ##TRAINING CLASSIFIER
   n_notj_c <- matrix(rep(apply(njc,1,sum),ncol(njc)),
                      ncol=ncol(njc), nrow=(nrow(njc))) - njc #freq of all j in c minus freq of j in c (c x j)
   theta_jc <- (1 + njc)/(j + n_notj_c)
+  theta_jc[theta_jc>1] <- .9999999999999999
+
   ########################################################################################
   ## Main training steps
   foo <- log( (1 - t(theta_jc[-c,]))/(1 - theta_jc[c,]) ) #intermediate step to building baseline log odds of each category
