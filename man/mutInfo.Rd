@@ -7,7 +7,7 @@
 mutInfo(coding, train_matrix)
 }
 \arguments{
-\item{coding}{The vector of codings}
+\item{coding}{The numeric vector of codings}
 
 \item{train_matrix}{A \pkg{quanteda} document-feature matrix with the number of rows equal to the length of \code{coding}}
 }

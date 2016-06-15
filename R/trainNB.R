@@ -1,7 +1,7 @@
 #' Train Naive Bayes
 #'
 #' Trains multiclass Naive Bayes classifier
-#' @param coding The vector of codings
+#' @param coding The numeric vector of codings
 #' @param train_matrix A \code{quanteda} document-feature matrix with the number of rows equal to the length of \code{coding}
 #'
 #' @return A list with the elements
@@ -39,14 +39,16 @@
 #' @export
 
 
-trainNB <- function(coding,train_matrix){ ##TRAINING CLASSIFIER
+trainNB <- function(coding, train_matrix){ ##TRAINING CLASSIFIER
   ##Error catching and warnings
-  if(length(coding)!=nrow(train_matrix)) stop('Length of codings does not equal number of documents in training document-feature matrix')
+  if(length(coding)!=nrow(train_matrix)) stop('Number of codings does not equal number of documents in training document-feature matrix')
   if(any(is.na(coding))){
-    warning('NB: Missing values present in coding. Removing observations with missing coding.')
-    coding <- coding[is.na(coding)==FALSE]
-    train_matrix <- train_matrix[is.na(coding)==FALSE,]
+    warning('Missing values present in coding. Removed observations with missing coding.')
+    coding <- coding[!is.na(coding)]
+    train_matrix <- train_matrix[!is.na(coding),]
   }
+  if(!quanteda::is.dfm(train_matrix)) stop('Must supply a quanteda dfm as train_matrix.')
+  if(!is.numeric(coding)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
 
   ##Preliminary items
   c <- length(unique(coding)) #total categories (1 x 1)
@@ -64,7 +66,7 @@ trainNB <- function(coding,train_matrix){ ##TRAINING CLASSIFIER
   rownames(njc) <- names(nc); colnames(njc) <- colnames(train_matrix) #apply category names and term names to dimensions
   for(cat in 1:c){ #loop over categories to count this
     if(length(coding[coding==rownames(njc)[cat]])>1) {
-      njc[cat,] <- colSums(train_matrix[coding==rownames(njc)[cat],])
+      njc[cat,] <- Matrix::colSums(train_matrix[coding==rownames(njc)[cat],])
     } else {
       njc[cat,] <- as.vector(train_matrix[coding==rownames(njc)[cat],])
     }

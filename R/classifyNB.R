@@ -13,27 +13,26 @@
 #'
 #' @author Matt W. Loftis
 #' @examples
-#'   library(quanteda)
-#'
 #'   ## Load data and create document-feature matrices
-#'   train_corpus <- corpus(x=training_agendas$text)
-#'   train_matrix <- dfm(train_corpus,
-#'                       language="danish",
-#'                       stem=TRUE,
-#'                       removeNumbers=FALSE)
+#'   train_corpus <- quanteda::corpus(x=training_agendas$text)
+#'   train_matrix <- quanteda::dfm(train_corpus,
+#'                                 language="danish",
+#'                                 stem=TRUE,
+#'                                 removeNumbers=FALSE)
 #'
-#'   test.corpus <- corpus(x=test_agendas$text)
-#'   test_matrix <- dfm(test.corpus,
-#'                 language="danish",
-#'                 stem=TRUE,
-#'                 removeNumbers=FALSE)
+#'   test.corpus <- quanteda::corpus(x=test_agendas$text)
+#'   test_matrix <- quanteda::dfm(test.corpus,
+#'                                language="danish",
+#'                                stem=TRUE,
+#'                                removeNumbers=FALSE)
 #'
 #'   ## Convert matrix of frequencies to matrix of indicators
 #'   train_matrix@x[train_matrix@x>1] <- 1
 #'   test_matrix@x[test_matrix@x>1] <- 1
 #'
 #'   ## Dropping training features not in the test set
-#'   train_matrix <- train_matrix[,(colnames(train_matrix) \%in\% colnames(test_matrix))]
+#'   train_matrix <- train_matrix[,
+#'                   (quanteda::features(train_matrix) %in% quanteda::features(test_matrix))]
 #'
 #'
 #'   est <- trainNB(training_agendas$coding, train_matrix)
@@ -44,19 +43,27 @@
 #' @export
 
 classifyNB <- function(est, test_matrix, test) {
+  ##Error catching and warnings
+  if(length(est)!=4) stop('Error in output supplied from trainNB.')
+  if(!is.data.frame(test)) stop('Must supply a data frame as test data.')
+  if(!quanteda::is.dfm(test_matrix)) stop('Must supply a quanteda dfm as test_matrix.')
+  if(NROW(test_matrix)<2) stop('Too few observations in test_matrix.')
+  if(nrow(test_matrix)!=nrow(test)) stop('Unequal number of rows in test_matrix and test data.')
+
+  ##Applying classifications
   w_0c <- est[[1]]
   w_jc <- est[[2]]
   nc <- est[[3]]
   pc <- est[[4]]
 
-  test_matrix <- test_matrix[,(colnames(test_matrix) %in% colnames(w_jc))]
-  w_jc <- w_jc[, colnames(test_matrix)]
+  test_matrix <- test_matrix[,(quanteda::features(test_matrix) %in% quanteda::features(w_jc))]
+  w_jc <- w_jc[, quanteda::features(test_matrix)]
 
   ## GETTING POSTERIOR CLASS PROBABILITIES FOR TEST SET
   term.appearance <- test_matrix %*% t( w_jc ) #Calculate w_jc * x_i (n x c)
   log_odds <- t( term.appearance ) + w_0c #full log-odds for c-1 non-reference categories
   odds <- cbind(exp( t( log_odds ) ), rep(1, ncol(log_odds))) #get odds and add column of 1s for reference category (n x c)
-  denominator <- rowSums(odds)
+  denominator <- Matrix::rowSums(odds)
   probs <- odds/denominator
   colnames(probs) <- names(nc) #make col names of results matrix the categories
 
@@ -65,17 +72,17 @@ classifyNB <- function(est, test_matrix, test) {
   identify_max <- probs==apply(probs,1,max) # (n x c)
   ratios_to_unconditional <- t(t(probs)/pc)
   max_ratios <- ratios_to_unconditional==apply(ratios_to_unconditional,1,max)
-  if (all(rowSums(identify_max)==1)){ #MAXIMUM PROBABILITIES -- WITH ERROR CATCHING
+  if (all(Matrix::rowSums(identify_max)==1)){ #MAXIMUM PROBABILITIES -- WITH ERROR CATCHING
     test$max_posterior <- as.vector(t(probs))[as.vector(t(identify_max))]
   } else {
     test$max_posterior <- NA
-    row.picker <- rowSums(identify_max)==1
+    row.picker <- Matrix::rowSums(identify_max)==1
     test$max_posterior[row.picker] <- as.vector(t(probs[row.picker,]))[as.vector(t(identify_max[row.picker,]))]
     for (j in 1:length(test$max_posterior[row.picker==FALSE])){
       test$max_posterior[row.picker==FALSE][j] <- max(probs[row.picker==FALSE,][j,])
     }
   }
-  if (all(rowSums(max_ratios)==1)){ #fill in maximum ratios with error-catching
+  if (all(Matrix::rowSums(max_ratios)==1)){ #fill in maximum ratios with error-catching
     test$max_ratios <- as.vector(t(ratios_to_unconditional))[as.vector(t(max_ratios))]
   } else if (sum((apply(max_ratios,1,sum)==1)==FALSE)==1) {
     test$max_ratios[apply(max_ratios,1,sum)==1] <- as.vector(t(ratios_to_unconditional[apply(max_ratios,1,sum)==1]))[as.vector(t(max_ratios[apply(max_ratios,1,sum)==1]))]
@@ -89,7 +96,7 @@ classifyNB <- function(est, test_matrix, test) {
     }
   }
   name_matrix <- matrix(rep(colnames(probs),nrow(probs)),nrow=nrow(probs),ncol=ncol(probs),byrow=T)
-  if (all(rowSums(identify_max)==1)){ #fill in max prob category names with error-catching
+  if (all(Matrix::rowSums(identify_max)==1)){ #fill in max prob category names with error-catching
     test$max_match <- as.vector(t(name_matrix))[as.vector(t(as.matrix(identify_max)))]
   } else {
     test$max_match <- NA
@@ -102,9 +109,9 @@ classifyNB <- function(est, test_matrix, test) {
       test$max_match[row.picker==FALSE][j] <- names(class.probs)[which(class.probs==min(class.probs))]
     }
   }
-  if (all(rowSums(max_ratios)==1)){ #fill in max ratio category names with error-catching
+  if (all(Matrix::rowSums(max_ratios)==1)){ #fill in max ratio category names with error-catching
     test$ratio_match <- as.vector(t(name_matrix))[as.vector(t(as.matrix(max_ratios)))]
-  } else if (sum((rowSums(max_ratios)==1)==FALSE)==1) {
+  } else if (sum((Matrix::rowSums(max_ratios)==1)==FALSE)==1) {
     test$ratio_match <- NA
     row.picker <- apply(max_ratios,1,sum)==1
     test$ratio_match[row.picker] <- as.vector(t(name_matrix[row.picker,]))[as.vector(t(max_ratios[row.picker,]))]
@@ -113,7 +120,7 @@ classifyNB <- function(est, test_matrix, test) {
     test$ratio_match[row.picker==FALSE] <- names(class.probs)[which(class.probs==min(class.probs))]
   } else {
   test$ratio_match <- NA
-    row.picker <- rowSums(max_ratios)==1
+    row.picker <- Matrix::rowSums(max_ratios)==1
     test$ratio_match[row.picker] <- as.vector(t(name_matrix[row.picker,]))[as.vector(t(max_ratios[row.picker,]))]
     for (j in 1:length(test$ratio_match[row.picker==FALSE])){
       boolian.vector <- max_ratios[row.picker==FALSE,][j,]
@@ -125,5 +132,7 @@ classifyNB <- function(est, test_matrix, test) {
       }
     }
   }
+  test$ratio_match <- as.numeric(test$ratio_match)
+  test$max_match <- as.numeric(test$max_match)
   return(test)
 }

@@ -1,8 +1,8 @@
 #' Accuracy by categories
 #'
 #' Checks accuracy of classification by category. Provides details by category including: true positive rate, positive predicted value, true frequency in training data, and the top five classes observations from a given category are mistakenly classified into.
-#' @param true The vector of true codings
-#' @param predicted One vector of predicted codings from \code{classifyNB}
+#' @param true The numeric vector of true codings
+#' @param predicted One numeric vector of predicted codings from \code{classifyNB}
 #' @param latexfile Logical indicating whether the user wants a latex table of results output into the current working directory.
 #' @param filename String name for the output file. Defaults to \code{category_accuracy.tex}
 #'
@@ -34,10 +34,15 @@
 #' @export
 
 catAccuracy <- function(true, predicted, latexfile=FALSE, filename="category_accuracy.tex"){
+  ##Error catching and warnings
+  if(!is.numeric(true)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
+  if(!is.numeric(predicted)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
+
+  ##Analyze accuracy
   tab <- as.matrix(table(true, predicted))
-  by.row <- tab/rowSums(tab)
-  by.col <- t(t(tab)/colSums(tab))
-  frequencies <- rowSums(tab)
+  by.row <- tab/Matrix::rowSums(tab)
+  by.col <- t(t(tab)/Matrix::colSums(tab))
+  frequencies <- Matrix::rowSums(tab)
   results <- data.frame(true=as.character(rownames(tab)),
                         true.pos.rate=rep(NA, nrow(tab)),
                         pos.pred.val=rep(NA, nrow(tab)),

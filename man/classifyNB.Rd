@@ -24,27 +24,26 @@ A data frame equal to \code{test} with four added columns:
 Classify test data using output from \code{trainNB}
 }
 \examples{
-  library(quanteda)
-
   ## Load data and create document-feature matrices
-  train_corpus <- corpus(x=training_agendas$text)
-  train_matrix <- dfm(train_corpus,
-                      language="danish",
-                      stem=TRUE,
-                      removeNumbers=FALSE)
+  train_corpus <- quanteda::corpus(x=training_agendas$text)
+  train_matrix <- quanteda::dfm(train_corpus,
+                                language="danish",
+                                stem=TRUE,
+                                removeNumbers=FALSE)
 
-  test.corpus <- corpus(x=test_agendas$text)
-  test_matrix <- dfm(test.corpus,
-                language="danish",
-                stem=TRUE,
-                removeNumbers=FALSE)
+  test.corpus <- quanteda::corpus(x=test_agendas$text)
+  test_matrix <- quanteda::dfm(test.corpus,
+                               language="danish",
+                               stem=TRUE,
+                               removeNumbers=FALSE)
 
   ## Convert matrix of frequencies to matrix of indicators
   train_matrix@x[train_matrix@x>1] <- 1
   test_matrix@x[test_matrix@x>1] <- 1
 
   ## Dropping training features not in the test set
-  train_matrix <- train_matrix[,(colnames(train_matrix) \\\%in\\\% colnames(test_matrix))]
+  train_matrix <- train_matrix[,
+                  (quanteda::features(train_matrix) \%in\% quanteda::features(test_matrix))]
 
 
   est <- trainNB(training_agendas$coding, train_matrix)

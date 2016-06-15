@@ -1,10 +1,10 @@
 #' k-fold cross-validation
 #'
 #' Implements k-fold cross-validation of multiclass NB classifier. Splits training data into k roughly equal parts. For each 'fold,' the classifier trains on the training data not in the fold and checks its accuracy by classifying fold k.
-#' @param coding The vector of codings
+#' @param coding The numeric vector of codings
 #' @param train_matrix A \pkg{quanteda} document-feature matrix with the number of rows equal to the length of \code{coding}
-#' @param train data frame from which \code{train_matrix} is derived (must have rows matching \code{train_matrix})
-#' @param k Numerical argument for the number of folds. Defaults to 10.
+#' @param train Data frame from which \code{train_matrix} is derived (must have rows matching \code{train_matrix})
+#' @param k Scalar argument for the number of folds. Defaults to 10.
 #'
 #' @return A list of results on the accuracy of each fold's classification.
 #' \item{correct_max}{A list of length k of the proportion of times the class associated with maximum posterior probability was the correct class.}
@@ -60,6 +60,21 @@
 
 
 kFoldCross <- function(coding,train_matrix,train,k=10){
+  ##Error catching and warnings
+  if(length(coding)!=nrow(train_matrix)) stop('Number of codings does not equal number of documents in training document-feature matrix')
+  if(length(coding)!=nrow(train)) stop('Number of codings does not equal number of observations in train data')
+  if(nrow(train)!=nrow(train_matrix)) stop('Number of observations in train data does not equal number of documents in training document-feature matrix')
+  if(any(is.na(coding))){
+    warning('Missing values present in coding. Removed observations with missing coding.')
+    coding <- coding[!is.na(coding)]
+    train_matrix <- train_matrix[!is.na(coding),]
+    train <- train[!is.na(coding),]
+  }
+  if(!quanteda::is.dfm(train_matrix)) stop('Must supply a quanteda dfm as train_matrix.')
+  if(!is.numeric(coding)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
+  if(!is.data.frame(train)) stop('Must supply a data frame as train data.')
+
+  ##Cross-validating
   size <- ceiling(length(coding)/k) #getting approximate size of folds
   labs <- rep(letters[1:k],size) #generating letters for labeling folds
   labs <- labs[1:length(coding)] #reducing label vector to size of training set

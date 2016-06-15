@@ -29,6 +29,10 @@
 #' @export
 
 topWords <- function(est, latexfile=FALSE, filename="topwords.tex"){
+  ##Error catching and warnings
+  if(length(est)!=4) stop('Error in output supplied from trainNB.')
+
+  ##Analyzing top words
   w_jc <- scale(est[[2]])
   top.words <- matrix(nrow=nrow(w_jc), ncol=5)
   for(i in 1:nrow(w_jc)){

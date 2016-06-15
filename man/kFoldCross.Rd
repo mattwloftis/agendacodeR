@@ -7,13 +7,13 @@
 kFoldCross(coding, train_matrix, train, k = 10)
 }
 \arguments{
-\item{coding}{The vector of codings}
+\item{coding}{The numeric vector of codings}
 
 \item{train_matrix}{A \pkg{quanteda} document-feature matrix with the number of rows equal to the length of \code{coding}}
 
-\item{train}{data frame from which \code{train_matrix} is derived (must have rows matching \code{train_matrix})}
+\item{train}{Data frame from which \code{train_matrix} is derived (must have rows matching \code{train_matrix})}
 
-\item{k}{Numerical argument for the number of folds. Defaults to 10.}
+\item{k}{Scalar argument for the number of folds. Defaults to 10.}
 }
 \value{
 A list of results on the accuracy of each fold's classification.

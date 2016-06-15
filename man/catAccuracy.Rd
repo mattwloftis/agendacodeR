@@ -8,9 +8,9 @@ catAccuracy(true, predicted, latexfile = FALSE,
   filename = "category_accuracy.tex")
 }
 \arguments{
-\item{true}{The vector of true codings}
+\item{true}{The numeric vector of true codings}
 
-\item{predicted}{One vector of predicted codings from \code{classifyNB}}
+\item{predicted}{One numeric vector of predicted codings from \code{classifyNB}}
 
 \item{latexfile}{Logical indicating whether the user wants a latex table of results output into the current working directory.}
 
