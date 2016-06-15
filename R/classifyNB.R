@@ -56,7 +56,7 @@ classifyNB <- function(est, test_matrix, test) {
   nc <- est[[3]]
   pc <- est[[4]]
 
-  test_matrix <- test_matrix[,(quanteda::features(test_matrix) %in% quanteda::features(w_jc))]
+  test_matrix <- test_matrix[,(quanteda::features(test_matrix) %in% colnames(w_jc))]
   w_jc <- w_jc[, quanteda::features(test_matrix)]
 
   ## GETTING POSTERIOR CLASS PROBABILITIES FOR TEST SET
@@ -71,6 +71,9 @@ classifyNB <- function(est, test_matrix, test) {
   unconditional_test <- t(probs)>pc # (c x n)
   identify_max <- probs==apply(probs,1,max) # (n x c)
   ratios_to_unconditional <- t(t(probs)/pc)
+  ratios_to_unconditional <- apply(ratios_to_unconditional,1,scale)
+  ratios_to_unconditional <- t(ratios_to_unconditional)
+
   max_ratios <- ratios_to_unconditional==apply(ratios_to_unconditional,1,max)
   if (all(Matrix::rowSums(identify_max)==1)){ #MAXIMUM PROBABILITIES -- WITH ERROR CATCHING
     test$max_posterior <- as.vector(t(probs))[as.vector(t(identify_max))]
