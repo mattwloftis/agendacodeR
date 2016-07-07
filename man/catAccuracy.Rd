@@ -26,22 +26,22 @@ Checks accuracy of classification by category. Provides details by category incl
 Latex table outputs depend on the Latex packages: longtable and xcolor. Include the lines:
 \code{\\usepackage\[table\]\{xcolor\}}
 \code{\\usepackage\{longtable\}}
-in the Latex header
+in Latex header
 }
 \examples{
   ## Load data and create document-feature matrices
-  train_corpus <- quanteda::corpus(x=training_agendas$text)
+  train_corpus <- quanteda::corpus(x = training_agendas$text)
   train_matrix <- quanteda::dfm(train_corpus,
-                      language="danish",
-                      stem=TRUE,
-                      removeNumbers=FALSE)
+                      language = "danish",
+                      stem = TRUE,
+                      removeNumbers = FALSE)
 
   ## Convert matrix of frequencies to matrix of indicators
-  train_matrix@x[train_matrix@x>1] <- 1
+  train_matrix@x[train_matrix@x > 1] <- 1
 
   est <- trainNB(training_agendas$coding, train_matrix)
   out <- classifyNB(est, train_matrix, training_agendas)
-  acc <- catAccuracy(true=out$coding, predicted=out$ratio_match)
+  acc <- catAccuracy(true = out$coding, predicted = out$ratio_match)
 
 }
 \author{

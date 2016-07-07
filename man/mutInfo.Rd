@@ -19,16 +19,16 @@ Calculate mutual information between training classes and training features
 }
 \examples{
 ## Load data and create document-feature matrices
-train_corpus <- quanteda::corpus(x=training_agendas$text)
+train_corpus <- quanteda::corpus(x = training_agendas$text)
 train_matrix <- quanteda::dfm(train_corpus,
-                    language="danish",
-                    stem=TRUE,
-                    removeNumbers=FALSE)
+                    language = "danish",
+                    stem = TRUE,
+                    removeNumbers = FALSE)
 
  ## Mutual information algorithm for feature selection
  mut.info <- mutInfo(training_agendas$coding, train_matrix)
  cutoff <- quantile(mut.info, .8) #Set cutoff quantile for mutual information
- train_matrix <- train_matrix[,mut.info>cutoff] #Pare down training set
+ train_matrix <- train_matrix[, mut.info > cutoff] #Pare down training set
 
 }
 \author{

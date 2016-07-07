@@ -23,24 +23,24 @@ Trains multiclass Naive Bayes classifier
 }
 \examples{
 ## Load data and create document-feature matrices
-train_corpus <- quanteda::corpus(x=training_agendas$text)
+train_corpus <- quanteda::corpus(x = training_agendas$text)
 train_matrix <- quanteda::dfm(train_corpus,
-                    language="danish",
-                    stem=TRUE,
-                    removeNumbers=FALSE)
+                    language = "danish",
+                    stem = TRUE,
+                    removeNumbers = FALSE)
 
-test_corpus <- quanteda::corpus(x=test_agendas$text)
+test_corpus <- quanteda::corpus(x = test_agendas$text)
 test_matrix <- quanteda::dfm(test_corpus,
-                   language="danish",
-                   stem=TRUE,
-                   removeNumbers=FALSE)
+                   language = "danish",
+                   stem = TRUE,
+                   removeNumbers = FALSE)
 
 ## Convert matrix of frequencies to matrix of indicators
-train_matrix@x[train_matrix@x>1] <- 1
-test_matrix@x[test_matrix@x>1] <- 1
+train_matrix@x[train_matrix@x > 1] <- 1
+test_matrix@x[test_matrix@x > 1] <- 1
 
 ## Dropping training features not in the test set
-train_matrix <- train_matrix[,(colnames(train_matrix) \%in\% colnames(test_matrix))]
+train_matrix <- train_matrix[, (colnames(train_matrix) \%in\% colnames(test_matrix))]
 
 est <- trainNB(training_agendas$coding, train_matrix)
 

@@ -27,27 +27,27 @@ Implements k-fold cross-validation of multiclass NB classifier. Splits training 
 }
 \examples{
  ## Load data and create document-feature matrices
- train_corpus <- quanteda::corpus(x=training_agendas$text)
+ train_corpus <- quanteda::corpus(x = training_agendas$text)
  train_matrix <- quanteda::dfm(train_corpus,
-                     language="danish",
-                     stem=TRUE,
-                     removeNumbers=FALSE)
+                     language = "danish",
+                     stem = TRUE,
+                     removeNumbers = FALSE)
 
 ## Convert matrix of frequencies to matrix of indicators
-train_matrix@x[train_matrix@x>1] <- 1
+train_matrix@x[train_matrix@x > 1] <- 1
 
 set.seed(123)
 k <- 3
-results <- kFoldCross(training_agendas$coding, train_matrix, training_agendas, k=k)
+results <- kFoldCross(training_agendas$coding, train_matrix, training_agendas, k = k)
 
-hist(results[[2]], main="k-fold Accuracies by Ratio Match")
+hist(results[[2]], main = "k-fold Accuracies by Ratio Match")
 
-hist(results[[1]], main="k-fold Accuracies by Maximum Posterior Match")
+hist(results[[1]], main = "k-fold Accuracies by Maximum Posterior Match")
 
 ##FINDING TOP CATEGORIES FOR PREDICTIVE ACCURACY
 cats <- as.data.frame(t(results[[3]][[1]]))
-for (j in 2:k) cats <- merge(cats, as.data.frame(t(results[[3]][[j]])), all=TRUE)
-accuracies <- apply(cats,2,function(x) mean(x, na.rm=TRUE))
+for (j in 2:k) cats <- merge(cats, as.data.frame(t(results[[3]][[j]])), all = TRUE)
+accuracies <- apply(cats, 2, function(x) mean(x, na.rm = TRUE))
 
 ##Graphical contingency table of all k-fold predictions to data (heatmaps)
 codes <- results[[4]][[1]]$true_coding
@@ -58,12 +58,12 @@ for (j in 2:k){
 }
 tab <- table(codes, matches)
 tab <- data.matrix(tab)
-tab <- tab[order(as.numeric(rownames(tab))),]
+tab <- tab[order(as.numeric(rownames(tab))), ]
 ##NB: GENERATES AN ERROR IF NOT ALL COLUMN NAMES ARE NUMERIC -- STILL WORKS!!
-tab <- tab[,order(as.numeric(colnames(tab)))]
+tab <- tab[, order(as.numeric(colnames(tab)))]
 
-heatmap(tab, Rowv=NA, Colv=NA, col=cm.colors(256), scale="row",
-        xlab="Predicted category", ylab="Actual category")
+heatmap(tab, Rowv = NA, Colv = NA, col = cm.colors(256), scale = "row",
+        xlab = "Predicted category", ylab = "Actual category")
 
 }
 \author{

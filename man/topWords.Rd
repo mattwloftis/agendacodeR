@@ -27,11 +27,11 @@ in the Latex header
 }
 \examples{
 ## Load data and create document-feature matrices
-train_corpus <- quanteda::corpus(x=training_agendas$text)
+train_corpus <- quanteda::corpus(x = training_agendas$text)
 train_matrix <- quanteda::dfm(train_corpus,
-                    language="danish",
-                    stem=TRUE,
-                    removeNumbers=FALSE)
+                    language = "danish",
+                    stem = TRUE,
+                    removeNumbers = FALSE)
 
 est <- trainNB(training_agendas$coding, train_matrix)
 words <- topWords(est)

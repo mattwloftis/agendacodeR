@@ -1,10 +1,10 @@
 Package: agendacodeR
 Title: Naive Bayes multiclass classification of Policy Agendas data
-Version: 0.0.0.9000
+Version: 0.1
 Author: Matt W. Loftis
 Maintainer: Matt W. Loftis <mattwloftis@ps.au.dk>
 Description: Implement multiclass Naive Bayes classifier and provide various associated tools.
-    feature selection and
+    This package is useful for applying and validating automated codings to policy agendas data.
 License: GPL (>= 3)
 Depends:
     R (>= 3.2.3)
