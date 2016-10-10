@@ -4,12 +4,19 @@
 \alias{trainNB}
 \title{Train Naive Bayes}
 \usage{
-trainNB(coding, train_matrix)
+trainNB(coding, train_matrix, smoothing = c("normalized", "simple",
+  "parameterized", "none"), alpha = 2, beta = 10)
 }
 \arguments{
-\item{coding}{The numeric vector of codings}
+\item{coding}{Numeric vector of training document codings}
 
 \item{train_matrix}{A \code{quanteda} document-feature matrix with the number of rows equal to the length of \code{coding}}
+
+\item{smoothing}{Type of Laplacian smoothing for term priors. See 'Details'.}
+
+\item{alpha}{Smoothing hyperparameter for 'parameterized' smoothing}
+
+\item{beta}{Smoothing hyperparameter for 'parameterized' smoothing}
 }
 \value{
 A list with the elements
@@ -20,6 +27,24 @@ A list with the elements
 }
 \description{
 Trains multiclass Naive Bayes classifier
+}
+\details{
+Smoothing method defaults to 'normalized' using the system advocated by
+Frank and Bouckaert (2006) for per-class word vector normalization.
+
+Using 'simple' will employ a simple version of Laplacian smoothing described
+in Metsis et al. (2006). Prior probability of term appearance, given a class,
+is just frequency of term in class plus 1 over count of documents in class
+plus 2.
+
+Using 'parameterized' will use a version of smoothing mentioned in O'Neil &
+Schutt (2013) for multiclass Naive bayes. Prior prob. of term appearance,
+given a class, is frequency of term in class plus alpha minus 1 over count
+of documents in class plus alpha plus beta minus 2.
+
+Using 'none' is inadvisable. In this case, prior prob. of term appearance,
+given a class, is frequency of term in class over count of documents in class.
+This will likely generate zero priors, which is a problem.
 }
 \examples{
 ## Load data and create document-feature matrices
@@ -47,5 +72,16 @@ est <- trainNB(training_agendas$coding, train_matrix)
 }
 \author{
 Matt W. Loftis
+}
+\references{
+Frank, E. and Bouckaert, R.R. (2006) Naive Bayes for Text Classification with
+Unbalanced Classes. s, Knowledge Discovery in Databases: PKDD, 503-510.
+
+Metsis, V. Androutsopoulos, I. and Paliouras, G. (2006) Spam Filtering with
+Naive Bayes -- Which Naive Bayes? CEAS 2006 - Third Conference on Email and
+Anti-Spam, July 27-28, 2006, Mountain View, California USA.
+
+O'Neil, C. and Schutt, R. (2013) Doing Data Science: Straight Talk from the
+Frontline. O'Reilly.
 }
 
