@@ -75,7 +75,7 @@ classifyNB <- function(est, test_matrix, test) {
   ratios_to_unconditional <- t(t(probs) / pc)
   ratios_to_unconditional <- apply(ratios_to_unconditional, 1, scale)
   ratios_to_unconditional <- t(ratios_to_unconditional)
-
+  
   max_ratios <- ratios_to_unconditional == apply(ratios_to_unconditional, 1, max)
   if (all(Matrix::rowSums(identify_max) == 1)){ #MAXIMUM PROBABILITIES -- WITH ERROR CATCHING
     test$max_posterior <- as.vector(t(probs))[as.vector(t(identify_max))]
