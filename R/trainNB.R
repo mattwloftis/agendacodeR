@@ -75,6 +75,8 @@
 trainNB <- function(coding, train_matrix, smoothing = c("normalized",
                 "simple", "parameterized", "none"), alpha = 2, beta = 10,
                 custom.class.priors = NULL) { ##TRAINING CLASSIFIER
+  smoothing <- match.arg(smoothing)
+
   ##Error catching and warnings
   if (length(coding) != nrow(train_matrix)) {
     stop('Number of codings does not equal number of documents in training document-feature matrix')
@@ -86,12 +88,13 @@ trainNB <- function(coding, train_matrix, smoothing = c("normalized",
   }
   if (!quanteda::is.dfm(train_matrix)) stop('Must supply a quanteda dfm as train_matrix.')
   if (!is.numeric(coding)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
+  smoothing <- match.arg(smoothing)
 
   ##Preliminary items
   c <- length(unique(coding)) #total categories (1 x 1)
   nc <- as.vector(table(coding)) #number of training obs per category (c x 1)
   names(nc) <- names(table(coding)) #naming nc vector with category names
-  
+
   ##Calculate or accept simple class priors
   if (!is.null(custom.class.priors)) {
     if(!is.vector(custom.class.priors)) stop('Custom class priors must be a vector')
@@ -102,7 +105,7 @@ trainNB <- function(coding, train_matrix, smoothing = c("normalized",
   } else {
     theta_c <- nc / nrow(train_matrix) #simple prior probs of categories (c x 1)
   }
-  
+
   ##Reordering these vectors to deal with the reference category problem
   ##If the reference category is the least common category, predictive accuracy is better
   nc <- nc[order(theta_c, decreasing = TRUE)]
