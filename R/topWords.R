@@ -10,11 +10,11 @@
 #' @author Matt W. Loftis
 #' @examples
 #' ## Load data and create document-feature matrices
-#' train_corpus <- quanteda::corpus(x = training_agendas$text)
-#' train_matrix <- quanteda::dfm(train_corpus,
-#'                     language = "danish",
-#'                     stem = TRUE,
-#'                     removeNumbers = FALSE)
+#'   train_corpus <- quanteda::corpus(x = training_agendas$text)
+#'   metadoc(train_corpus, "language") <- "danish"
+#'   train_matrix <- quanteda::dfm(train_corpus,
+#'                                 stem = TRUE,
+#'                                 removeNumbers = FALSE)
 #'
 #' est <- trainNB(training_agendas$coding, train_matrix)
 #' words <- topWords(est)

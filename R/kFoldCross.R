@@ -16,14 +16,11 @@
 #' @import Matrix quanteda
 #' @examples
 #'  ## Load data and create document-feature matrices
-#'  train_corpus <- quanteda::corpus(x = training_agendas$text)
-#'  train_matrix <- quanteda::dfm(train_corpus,
-#'                      language = "danish",
-#'                      stem = TRUE,
-#'                      removeNumbers = FALSE)
-#'
-#' ## Convert matrix of frequencies to matrix of indicators
-#' train_matrix@x[train_matrix@x > 1] <- 1
+#'   train_corpus <- quanteda::corpus(x = training_agendas$text)
+#'   metadoc(train_corpus, "language") <- "danish"
+#'   train_matrix <- quanteda::dfm(train_corpus,
+#'                                 stem = TRUE,
+#'                                 removeNumbers = FALSE)
 #'
 #' set.seed(123)
 #' k <- 3

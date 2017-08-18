@@ -46,24 +46,11 @@
 #'
 #' @examples
 #' ## Load data and create document-feature matrices
-#' train_corpus <- quanteda::corpus(x = training_agendas$text)
-#' train_matrix <- quanteda::dfm(train_corpus,
-#'                     language = "danish",
-#'                     stem = TRUE,
-#'                     removeNumbers = FALSE)
-#'
-#' test_corpus <- quanteda::corpus(x = test_agendas$text)
-#' test_matrix <- quanteda::dfm(test_corpus,
-#'                    language = "danish",
-#'                    stem = TRUE,
-#'                    removeNumbers = FALSE)
-#'
-#' ## Convert matrix of frequencies to matrix of indicators
-#' train_matrix@x[train_matrix@x > 1] <- 1
-#' test_matrix@x[test_matrix@x > 1] <- 1
-#'
-#' ## Dropping training features not in the test set
-#' train_matrix <- train_matrix[, (colnames(train_matrix) %in% colnames(test_matrix))]
+#'   train_corpus <- quanteda::corpus(x = training_agendas$text)
+#'   metadoc(train_corpus, "language") <- "danish"
+#'   train_matrix <- quanteda::dfm(train_corpus,
+#'                                 stem = TRUE,
+#'                                 removeNumbers = FALSE)
 #'
 #' est <- trainNB(training_agendas$coding, train_matrix)
 #'
@@ -72,9 +59,13 @@
 #' @export
 
 
-trainNB <- function(coding, train_matrix, smoothing = c("normalized",
-                "simple", "parameterized", "none"), alpha = 2, beta = 10,
-                custom.class.priors = NULL) { ##TRAINING CLASSIFIER
+trainNB <- function(coding,
+                    train_matrix,
+                    smoothing = c("normalized", "simple",
+                                  "parameterized", "none"),
+                    alpha = 2,
+                    beta = 10,
+                    custom.class.priors = NULL) { ##TRAIN CLASSIFIER
   smoothing <- match.arg(smoothing)
 
   ##Error catching and warnings
@@ -88,9 +79,9 @@ trainNB <- function(coding, train_matrix, smoothing = c("normalized",
   }
   if (!quanteda::is.dfm(train_matrix)) stop('Must supply a quanteda dfm as train_matrix.')
   if (!is.numeric(coding)) stop('Coding is not numeric. agendacodeR currently requires numeric codings.')
-  smoothing <- match.arg(smoothing)
 
   ##Preliminary items
+  if (any(train_matrix@x > 1)) train_matrix@x[train_matrix@x > 1] <- 1
   c <- length(unique(coding)) #total categories (1 x 1)
   nc <- as.vector(table(coding)) #number of training obs per category (c x 1)
   names(nc) <- names(table(coding)) #naming nc vector with category names
@@ -116,21 +107,33 @@ trainNB <- function(coding, train_matrix, smoothing = c("normalized",
   rownames(njc) <- names(nc) #apply category names and term names to dimensions
   colnames(njc) <- colnames(train_matrix) #apply category names and term names to dimensions
   for (cat in 1:c){ #loop over categories to count this
-    if (length(coding[coding == rownames(njc)[cat]]) > 1) {
-      njc[cat,] <- Matrix::colSums(train_matrix[coding == rownames(njc)[cat], ])
+    if (length(coding[which(coding == rownames(njc)[cat])]) > 1) {
+      njc[cat,] <- Matrix::colSums(train_matrix[which(coding == rownames(njc)[cat]), ])
     } else {
-      njc[cat,] <- as.vector(train_matrix[coding == rownames(njc)[cat], ])
+      njc[cat,] <- as.vector(train_matrix[which(coding == rownames(njc)[cat]), ])
     }
   }
 
   ##Setting prior prob of words in docs by categories in the training set ################
   #NB: Priors set wrt total terms use in category proposed in Frank and Bouckaert 2006
-  if (smoothing == "normalized"){
+  # if (smoothing == "normalized-corrected") {
+  #   j <- ncol(train_matrix) #total number of terms (1 x 1)
+  #   n_notj_c <- matrix(rep(apply(njc, 1, sum), ncol(njc)),
+  #                      ncol = ncol(njc), nrow = nrow(njc)) - njc #freq of all j in c minus freq of j in c (c x j)
+  #   # i.e. frequency of all NOT j in c
+  #
+  #   theta_jc <- 1 + (njc / n_notj_c)
+  # }
+
+  if (smoothing == "normalized") {
     j <- ncol(train_matrix) #total number of terms (1 x 1)
     n_notj_c <- matrix(rep(apply(njc, 1, sum), ncol(njc)),
-                       ncol = ncol(njc), nrow = (nrow(njc))) - njc #freq of all j in c minus freq of j in c (c x j)
+                       ncol = ncol(njc), nrow = nrow(njc)) - njc #freq of all j in c minus freq of j in c (c x j)
+    # i.e. frequency of all NOT j in c
+
     theta_jc <- (1 + njc) / (j + n_notj_c)
-    theta_jc[theta_jc > 1] <- .9999999999999999 #ceiling on odds greater than one
+    # theta_jc[theta_jc > 1] <- .999999999999 #ceiling on odds greater than one (this was an unnecessary fix)
+    if (any(theta_jc > 1)) stop("Some theta_jc greater than 1. Use unbalanced class correction, option \"normalized-corrected\".")
   }
 
   #NB: Laplacian priors proposed in Metsis et al 2006

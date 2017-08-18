@@ -9,11 +9,11 @@
 #' @author Matt W. Loftis
 #' @examples
 #' ## Load data and create document-feature matrices
-#' train_corpus <- quanteda::corpus(x = training_agendas$text)
-#' train_matrix <- quanteda::dfm(train_corpus,
-#'                     language = "danish",
-#'                     stem = TRUE,
-#'                     removeNumbers = FALSE)
+#'   train_corpus <- quanteda::corpus(x = training_agendas$text)
+#'   metadoc(train_corpus, "language") <- "danish"
+#'   train_matrix <- quanteda::dfm(train_corpus,
+#'                                 stem = TRUE,
+#'                                 removeNumbers = FALSE)
 #'
 #'  ## Mutual information algorithm for feature selection
 #'  mut.info <- mutInfo(training_agendas$coding, train_matrix)
@@ -54,10 +54,10 @@ mutInfo <- function(coding, train_matrix){
   rownames(njc) <- names(nc) #apply category names and term names to dimensions
   colnames(njc) <- colnames(train_matrix) #apply category names and term names to dimensions
   for (cat in 1:length(unique(coding))) { #loop over categories to count this
-    if (length(coding[coding == rownames(njc)[cat]]) > 1) {
-      njc[cat, ] <- Matrix::colSums(train_matrix[coding == rownames(njc)[cat], ])
+    if (length(coding[which(coding == rownames(njc)[cat])]) > 1) {
+      njc[cat, ] <- Matrix::colSums(train_matrix[which(coding == rownames(njc)[cat]), ])
     } else {
-      njc[cat, ] <- as.vector(train_matrix[coding == rownames(njc)[cat], ])
+      njc[cat, ] <- as.vector(train_matrix[which(coding == rownames(njc)[cat]), ])
     }
   }
   pjc <- njc / nrow(train_matrix)

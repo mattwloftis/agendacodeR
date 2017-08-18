@@ -15,25 +15,16 @@
 #' @examples
 #'   ## Load data and create document-feature matrices
 #'   train_corpus <- quanteda::corpus(x = training_agendas$text)
+#'   metadoc(train_corpus, "language") <- "danish"
 #'   train_matrix <- quanteda::dfm(train_corpus,
-#'                                 language = "danish",
 #'                                 stem = TRUE,
 #'                                 removeNumbers = FALSE)
 #'
 #'   test.corpus <- quanteda::corpus(x = test_agendas$text)
+#'   metadoc(test_corpus, "language") <- "danish"
 #'   test_matrix <- quanteda::dfm(test.corpus,
-#'                                language = "danish",
 #'                                stem = TRUE,
 #'                                removeNumbers = FALSE)
-#'
-#'   ## Convert matrix of frequencies to matrix of indicators
-#'   train_matrix@x[train_matrix@x > 1] <- 1
-#'   test_matrix@x[test_matrix@x > 1] <- 1
-#'
-#'   ## Dropping training features not in the test set
-#'   train_matrix <- train_matrix[,
-#'                   (quanteda::features(train_matrix) %in% quanteda::features(test_matrix))]
-#'
 #'
 #'   est <- trainNB(training_agendas$coding, train_matrix)
 #'
@@ -58,8 +49,8 @@ classifyNB <- function(est, test_matrix, test) {
   nc <- est[[3]]
   pc <- est[[4]]
 
-  test_matrix <- test_matrix[, (quanteda::features(test_matrix) %in% colnames(w_jc))]
-  w_jc <- w_jc[, quanteda::features(test_matrix)]
+  test_matrix <- test_matrix[, (quanteda::featnames(test_matrix) %in% colnames(w_jc))]
+  w_jc <- w_jc[, quanteda::featnames(test_matrix)]
 
   ## GETTING POSTERIOR CLASS PROBABILITIES FOR TEST SET
   term.appearance <- test_matrix %*% t(w_jc) #Calculate w_jc * x_i (n x c)
@@ -75,7 +66,7 @@ classifyNB <- function(est, test_matrix, test) {
   ratios_to_unconditional <- t(t(probs) / pc)
   ratios_to_unconditional <- apply(ratios_to_unconditional, 1, scale)
   ratios_to_unconditional <- t(ratios_to_unconditional)
-  
+
   max_ratios <- ratios_to_unconditional == apply(ratios_to_unconditional, 1, max)
   if (all(Matrix::rowSums(identify_max) == 1)){ #MAXIMUM PROBABILITIES -- WITH ERROR CATCHING
     test$max_posterior <- as.vector(t(probs))[as.vector(t(identify_max))]
