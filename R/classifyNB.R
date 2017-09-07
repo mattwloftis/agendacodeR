@@ -50,6 +50,7 @@ classifyNB <- function(est, test_matrix, test) {
   pc <- est[[4]]
 
   test_matrix <- test_matrix[, (quanteda::featnames(test_matrix) %in% colnames(w_jc))]
+  if (any(test_matrix@x > 1)) test_matrix@x[test_matrix@x > 1] <- 1
   w_jc <- w_jc[, quanteda::featnames(test_matrix)]
 
   ## GETTING POSTERIOR CLASS PROBABILITIES FOR TEST SET
