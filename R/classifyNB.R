@@ -49,19 +49,62 @@ classifyNB <- function(est, test_matrix, test) {
   nc <- est[[3]]
   pc <- est[[4]]
 
+  ##Trim test dfm to include only features in training data
   test_matrix <- test_matrix[, (quanteda::featnames(test_matrix) %in% colnames(w_jc))]
+  ##Trim trained model include only features in test matrix and reorder to match test matrix
+  w_jc <- w_jc[, quanteda::featnames(test_matrix)]
+
+  ##Convert test dfm to appearance indicators instead of counts
   if (any(test_matrix@x > 1)) {
     test_matrix@x[test_matrix@x > 1] <- 1
   }
-  w_jc <- w_jc[, quanteda::featnames(test_matrix)]
 
   ## GETTING POSTERIOR CLASS PROBABILITIES FOR TEST SET
   term.appearance <- test_matrix %*% t(w_jc) #Calculate w_jc * x_i (n x c)
   log_odds <- t( term.appearance ) + w_0c #full log-odds for c-1 non-reference categories
   odds <- cbind(exp(t(log_odds)), rep(1, ncol(log_odds))) #get odds and add column of 1s for reference category (n x c)
+
+  ##Run check for infinite odds
+  ##NB: this happens when ref class is extremely (un)likely relative
+  ##    to some other class. Odds become infinite (i.e. class 'Inf')
+  ##    when they are too large (small) for machine tolerance
+  ##    If infinites are found, then shrink all log odds values
+  ##    proportionally toward zero. This works because exp(0) = 1
+  ##    Thus, both negative and positive log odds shrink towards
+  ##    ref class at the same rate.
+  if (any(apply(odds, 2, is.finite) == F)) {
+    check.if.infinite <- any(apply(odds, 2, is.finite) == F)
+
+    while (check.if.infinite) {
+      #Shrink log odds values toward zero (i.e. ref class)
+      log_odds <- log_odds * .9
+
+      odds <- cbind(exp(t(log_odds)), rep(1, ncol(log_odds)))
+
+      check.if.infinite <- any(apply(odds, 2, is.finite) == F)
+    }
+  }
+
   denominator <- Matrix::rowSums(odds)
+
+  ##Run check for infinite summed odds (rare if individual odds are finite)
+  if (any(is.finite(denominator) == F)) {
+    check.if.infinite <- any(is.finite(denominator) == F)
+
+    while (check.if.infinite) {
+      #Shrink log odds (further) toward zero (i.e. ref class)
+      log_odds <- log_odds * .9
+
+      odds <- cbind(exp(t(log_odds)), rep(1, ncol(log_odds)))
+     denominator <- Matrix::rowSums(odds)
+
+      check.if.infinite <- any(is.finite(denominator) == F)
+    }
+  }
+
+  ##Calculate document class posterior probs
   probs <- odds / denominator
-  colnames(probs) <- names(nc) #make col names of results matrix the categories
+  colnames(probs) <- names(nc) #make categories col names of probs matrix
 
   ## NOTE MATCHES AND PROBABILITY RATIOS
   unconditional_test <- t(probs) > pc # (c x n)
