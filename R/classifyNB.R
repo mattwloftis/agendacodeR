@@ -52,8 +52,14 @@ classifyNB <- function(est, test_matrix, test) {
   ##Trim test dfm to include only features in training data
   test_matrix <- test_matrix[, (quanteda::featnames(test_matrix) %in% colnames(w_jc))]
   ##Trim trained model include only features in test matrix and reorder to match test matrix
-  w_jc <- w_jc[, quanteda::featnames(test_matrix)]
-
+  if (length(rownames(w_jc)) == 1) { # convert w_jc back to matrix when number of categories is 2
+    rows <- rownames(w_jc)
+    w_jc <- w_jc[, quanteda::featnames(test_matrix)]
+    w_jc <- t(as.matrix(w_jc))
+    rownames(w_jc) <- rows
+  } else {
+    w_jc <- w_jc[, quanteda::featnames(test_matrix)]
+  }
   ##Convert test dfm to appearance indicators instead of counts
   if (any(test_matrix@x > 1)) {
     test_matrix@x[test_matrix@x > 1] <- 1
