@@ -154,9 +154,17 @@ trainNB <- function(coding,
   ########################################################################################
   ## Main training steps
   foo <- log( (1 - t(theta_jc[-c, ]))/(1 - theta_jc[c, ]) ) #intermediate step to build baseline log odds of each category
+  if (c == 2) { # transpose foo and add colnames when number of categories is 2
+    foo <- t(foo)
+    colnames(foo) <- rownames(theta_jc)[1]
+  }
   foo <- apply(foo, 2, sum) #intermediate step to build baseline log odds of each category
   w_0c <- foo + log(theta_c[-c] / theta_c[c]) #baseline log odds of categories (invariant to words in vector x_i)
   w_jc <- log((theta_jc[-c, ] * (1 - theta_jc[c, ]) / (theta_jc[c, ] * (1 - theta_jc[-c, ])))) #variable portion of log odds, depending on words in vector x_i
+  if (c == 2) { # convert w_jc from a vector into a matrix when number of categories is 2
+    w_jc <- t(as.matrix(w_jc))
+    rownames(w_jc) <- rownames(theta_jc)[1]
+  }
 
   return( list( w_0c = w_0c, w_jc = w_jc, nc = nc, theta_c = theta_c ) ) #return stuff to make forecasts on new data
 }
